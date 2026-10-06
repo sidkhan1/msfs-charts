@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>MSFS Charts Companion</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2d;--panel2:#11243a;--text:#eef5ff;--muted:#91a5bd;--line:#20354d;--accent:#55b8ff;--good:#58d68d;--warn:#ffc857}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#07111f,#091525);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input{font:inherit} .app{max-width:1100px;margin:auto;min-height:100vh;padding-bottom:40px}
+header{position:sticky;top:0;z-index:5;background:rgba(7,17,31,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:16px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#55b8ff,#7b61ff);display:grid;place-items:center;font-size:21px}
+h1{font-size:19px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:2px}
+main{padding:18px 16px}.search{display:flex;gap:10px;margin-bottom:18px}.search input{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:13px;padding:14px 15px;outline:none}.search input:focus{border-color:var(--accent)}button{border:0;border-radius:12px;padding:12px 15px;background:var(--panel2);color:var(--text);cursor:pointer}button.primary{background:var(--accent);color:#03101d;font-weight:700}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:16px}.card{background:rgba(13,27,45,.88);border:1px solid var(--line);border-radius:17px;padding:16px}.card h2{font-size:15px;margin:0 0 12px}.muted{color:var(--muted)}.small{font-size:12px}
+.airport{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:13px;margin-top:9px;background:#0a1727}.airport:hover{border-color:#31506f}.code{font-weight:800;font-size:18px}.name{font-size:13px;color:var(--muted);margin-top:2px}
+.badge{font-size:11px;padding:5px 8px;border-radius:8px;background:#12304a;color:#8ed1ff}.row{display:flex;gap:8px;flex-wrap:wrap}.pill{border:1px solid var(--line);padding:8px 10px;border-radius:10px;background:#0a1727;font-size:12px}
+.hidden{display:none}.hero{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.hero .code{font-size:30px}.back{margin-bottom:12px}
+.tabs{display:flex;gap:7px;overflow:auto;margin:14px 0}.tabs button{white-space:nowrap}.tabs button.active{background:var(--accent);color:#03101d;font-weight:700}
+.detailgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#0a1727;border:1px solid var(--line);border-radius:12px;padding:12px}.stat b{display:block;margin-top:4px}.chartbox{min-height:280px;border:1px dashed #36516d;border-radius:14px;display:grid;place-items:center;text-align:center;padding:25px;background:repeating-linear-gradient(0deg,#0a1727,#0a1727 28px,#0c1a2c 29px)}
+.route{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.route .airporttag{background:#0a1727;border:1px solid var(--line);border-radius:11px;padding:10px 12px;font-weight:800}.arrow{color:var(--muted)}
+footer{padding:18px 16px;color:#70869e;font-size:11px;line-height:1.5}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.detailgrid{grid-template-columns:1fr 1fr}.search{flex-direction:column}}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#07111f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MSFS Charts">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+<div class="app">
+<header><div class="brand"><div class="logo">✈</div><div><h1>MSFS Charts Companion</h1><div class="sub">Built for MSFS 2024 • PS5 • A321 / A330 workflow</div></div></div></header>
+<main>
+<section id="home">
+<div class="search"><input id="search" placeholder="Search airport — EGCC, LTFM, OMDB…" autocomplete="off"><button class="primary" onclick="doSearch()">Search</button></div>
+<div class="grid">
+<div class="card"><h2>Airport Search</h2><div id="results"><div class="muted small">Try EGCC, LEAL, LTFM, OMDB or OPIS.</div></div></div>
+<div class="card"><h2>My Flight</h2><div class="route" id="route"></div><p class="muted small" id="routeHelp">Build a route one airport at a time. Your airports stay on this device.</p><div class="row"><button class="primary" onclick="showRouteBrief()">Open flight briefing</button><button onclick="clearRoute()">Clear route</button></div>
+<div id="briefing" class="hidden" style="margin-top:12px"></div></div>
+</div>
+<div class="card" style="margin-top:16px"><h2>Quick access</h2><div class="row">
+<button onclick="openAirport('EGCC')">EGCC Manchester</button>
+<button onclick="openAirport('LEAL')">LEAL Alicante</button>
+<button onclick="openAirport('LTFM')">LTFM Istanbul</button>
+<button onclick="openAirport('OMDB')">OMDB Dubai</button>
+<button onclick="openAirport('OPIS')">OPIS Islamabad</button>
+</div></div>
+<div class="card" style="margin-top:16px"><h2>What this version does</h2><div class="row">
+<div class="pill">ICAO search</div><div class="pill">Airport briefing</div><div class="pill">Runway / frequency panel</div><div class="pill">SID / STAR / approach tabs</div><div class="pill">Route builder</div><div class="pill">Cockpit dark mode</div><div class="pill">Phone/tablet friendly</div>
+</div></div>
+</section>
+
+<section id="airportView" class="hidden">
+<button class="back" onclick="showHome()">← Back</button>
+<div class="card"><div class="hero"><div><div class="code" id="aCode"></div><div id="aName" class="muted"></div></div><button onclick="addRoute()">＋ Add to flight</button></div>
+<div class="tabs"><button class="active" data-tab="overview">Overview</button><button data-tab="diagram">Airport diagram</button><button data-tab="sid">SID</button><button data-tab="star">STAR</button><button data-tab="approach">Approach</button><button data-tab="freq">Frequencies</button></div>
+<div id="tabContent"></div></div>
+</section>
+</main>
+<footer>
+Airport/runway information in this prototype is illustrative and must be verified before use. This app is a simulator companion, not a real-world flight navigation tool. Chart images/procedure data should be supplied through a properly licensed or permitted source. The sample airport records are intentionally limited; the next build can connect a legitimate aviation-data provider and populate live/current charts.
+</footer>
+</div>
+<script>
+const airports={
+EGCC:{name:"Manchester Airport",country:"United Kingdom",elev:"257 ft",runways:[
+{id:"06L",length:"3,047 m",heading:"059°",ils:"110.90"},
+{id:"24R",length:"3,047 m",heading:"239°",ils:"110.90"},
+{id:"06R",length:"3,048 m",heading:"059°",ils:"—"},
+{id:"24L",length:"3,048 m",heading:"239°",ils:"—"}],
+freq:[["ATIS","verify current source"],["GROUND","verify current source"],["TOWER","verify current source"],["APPROACH","verify current source"]],
+sids:["LAM 5F","LISTO 1F","POL 6F","SONEX 2F"],stars:["DAYNE 2A","LISTO 2A","MALUD 1A","RUNWAY 1A"],approaches:["ILS 06L","ILS 24R","RNAV 06L","RNAV 24R"]},
+LEAL:{name:"Alicante–Elche Miguel Hernández Airport",country:"Spain",elev:"142 ft",runways:[
+{id:"10",length:"3,000 m",heading:"096°",ils:"111.50"},
+{id:"28",length:"3,000 m",heading:"276°",ils:"111.50"}],
+freq:[["ATIS","verify current source"],["GROUND","verify current source"],["TOWER","verify current source"],["APPROACH","verify current source"]],
+sids:["MABUX 1B","ALT 2B","GASMO 1B"],stars:["MABUX 1A","MUREG 1A","GASMO 1A"],approaches:["ILS 10","ILS 28","RNAV 10","RNAV 28"]},
+LTFM:{name:"Istanbul Airport",country:"Türkiye",elev:"325 ft",runways:[
+{id:"18",length:"4,100 m",heading:"179°",ils:"—"},
+{id:"36",length:"4,100 m",heading:"359°",ils:"—"},
+{id:"17L",length:"4,100 m",heading:"169°",ils:"—"},
+{id:"35R",length:"4,100 m",heading:"349°",ils:"—"},
+{id:"17R",length:"3,750 m",heading:"169°",ils:"—"},
+{id:"35L",length:"3,750 m",heading:"349°",ils:"—"}],
+freq:[["ATIS","verify current source"],["GROUND","verify current source"],["TOWER","verify current source"],["APPROACH","verify current source"]],
+sids:["TUMBO 1C","ERANA 1C","VEMAG 1C"],stars:["TUMBO 1A","ERANA 1A","VEMAG 1A"],approaches:["ILS — select active runway","RNAV — select active runway"]},
+OMDB:{name:"Dubai International Airport",country:"United Arab Emirates",elev:"62 ft",runways:[
+{id:"12L",length:"4,000 m",heading:"119°",ils:"110.30"},
+{id:"30R",length:"4,000 m",heading:"299°",ils:"110.30"},
+{id:"12R",length:"4,447 m",heading:"119°",ils:"111.30"},
+{id:"30L",length:"4,447 m",heading:"299°",ils:"111.30"}],
+freq:[["ATIS","verify current source"],["GROUND","verify current source"],["TOWER","verify current source"],["APPROACH","verify current source"]],
+sids:["DANIK 2D","ELSAZ 1D","RATVO 2D"],stars:["DANIK 1A","ELSAZ 1A","RATVO 1A"],approaches:["ILS 12L","ILS 30R","ILS 12R","ILS 30L"]},
+OPIS:{name:"Islamabad International Airport",country:"Pakistan",elev:"1,761 ft",runways:[
+{id:"10",length:"3,658 m",heading:"101°",ils:"—"},
+{id:"28",length:"3,658 m",heading:"281°",ils:"—"}],
+freq:[["ATIS","verify current source"],["GROUND","verify current source"],["TOWER","verify current source"],["APPROACH","verify current source"]],
+sids:["DAGAR 1A","ISB 1A"],stars:["DAGAR 1B","ISB 1B"],approaches:["ILS/RNAV — select current chart"]},
+EGLL:{name:"London Heathrow Airport",country:"United Kingdom",elev:"83 ft",runways:[
+{id:"09L",length:"3,902 m",heading:"090°",ils:"110.30"},
+{id:"27R",length:"3,902 m",heading:"270°",ils:"110.30"},
+{id:"09R",length:"3,658 m",heading:"090°",ils:"111.50"},
+{id:"27L",length:"3,658 m",heading:"270°",ils:"111.50"}],
+freq:[["ATIS","verify current source"],["GROUND","verify current source"],["TOWER","verify current source"],["APPROACH","verify current source"]],
+sids:["DET 2F","LAM 3A","BIG 2F"],stars:["BIG 1A","LAM 1A","OCK 1A"],approaches:["ILS 09L","ILS 27R","ILS 09R","ILS 27L"]}
+};
+let current=null, tab="overview", route=JSON.parse(localStorage.getItem("msfsRoute")||"[]");
+
+function save(){localStorage.setItem("msfsRoute",JSON.stringify(route));renderRoute()}
+function renderRoute(){document.getElementById("route").innerHTML=route.length?route.map((x,i)=>`<span class="airporttag">${x}</span>${i<route.length-1?'<span class="arrow">→</span>':''}`).join(""):'<span class="muted small">No airports added yet</span>'}
+function clearRoute(){route=[];save();document.getElementById("briefing").classList.add("hidden")}
+function showRouteBrief(){
+ const b=document.getElementById("briefing");
+ if(!route.length){b.innerHTML='<div class="muted small">Add at least one airport first.</div>';b.classList.remove("hidden");return}
+ b.innerHTML='<div class="card"><h2>Flight briefing</h2>'+route.map((code,i)=>{let a=airports[code];return `<div class="airport"><div><b>${i===0?"DEPARTURE":i===route.length-1?"ARRIVAL":"EN-ROUTE"} — ${code}</b><div class="name">${a.name}</div></div><span class="badge">${i===0?"Select SID":i===route.length-1?"Select STAR + approach":"Review arrival/departure"}</span></div>`}).join("")+'</div>';
+ b.classList.remove("hidden")
+}
+function doSearch(){let q=document.getElementById("search").value.trim().toUpperCase();let arr=Object.entries(airports).filter(([c,a])=>(c+" "+a.name+" "+a.country).toUpperCase().includes(q));document.getElementById("results").innerHTML=arr.length?arr.map(([c,a])=>`<div class="airport" onclick="openAirport('${c}')"><div><div class="code">${c}</div><div class="name">${a.name} • ${a.country}</div></div><span class="badge">Open</span></div>`).join(""):'<div class="muted small">No match in this prototype database.</div>'}
+function openAirport(code){current=code;tab="overview";document.getElementById("home").classList.add("hidden");document.getElementById("airportView").classList.remove("hidden");document.getElementById("aCode").textContent=code;document.getElementById("aName").textContent=airports[code].name+" • "+airports[code].country;document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));renderTab()}
+function showHome(){document.getElementById("airportView").classList.add("hidden");document.getElementById("home").classList.remove("hidden");renderRoute()}
+function addRoute(){if(!route.includes(current)){route.push(current);save()} }
+function renderTab(){
+let a=airports[current], c=document.getElementById("tabContent");
+if(tab==="overview")c.innerHTML=`<div class="detailgrid">${stat("Elevation",a.elev)}${stat("Runways",a.runways.length+" available")}${stat("Country",a.country)}${stat("Airport",a.name)}</div>
+<div style="margin-top:12px" class="card"><h2>Runway briefing</h2>${a.runways.map(r=>`<div class="airport"><div><b>${r.id}</b><div class="name">${r.length} • heading ${r.heading}</div></div><span class="badge">${r.ils==="—"?"No ILS listed":"ILS "+r.ils}</span></div>`).join("")}</div>
+<div style="margin-top:12px" class="card"><h2>Quick briefing</h2><div class="row"><span class="pill">Departure: choose SID</span><span class="pill">Arrival: choose STAR</span><span class="pill">Approach: choose procedure</span><span class="pill">Confirm active runway</span></div></div>`;
+else if(tab==="diagram")c.innerHTML=`<div class="chartbox"><div><b>Airport diagram</b><p class="muted small">Chart viewer placeholder.<br>Connect your licensed/permitted chart source here.</p><button class="primary">Open chart source</button></div></div>`;
+else if(tab==="sid")c.innerHTML=procedure("SID / Departures");
+else if(tab==="star")c.innerHTML=procedure("STAR / Arrivals");
+else if(tab==="approach")c.innerHTML=procedure("Approach charts");
+else c.innerHTML=`<div class="card"><h2>Frequencies</h2>${a.freq.map(x=>`<div class="airport"><span>${x}</span></div>`).join("")}</div>`;
+}
+function stat(k,v){return `<div class="stat"><span class="muted small">${k}</span><b>${v}</b></div>`}
+function procedure(title,items){return `<div class="card"><h2>${title}</h2>${items.map(x=>`<div class="airport" onclick="selectProcedure('${x.replace(/'/g,"\\'")}')"><div><b>${x}</b><div class="name">Tap to add to briefing</div></div><span class="badge">View</span></div>`).join("")}<div class="chartbox" style="margin-top:12px"><div><b>Chart viewer</b><p class="muted small">The app is ready to display the licensed/permitted chart here.</p></div></div></div>`}
+function selectProcedure(name){alert(name+" selected for "+current+". The next integration will load the corresponding chart and briefing details.");}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("active",x===b));renderTab()});
+document.getElementById("search").addEventListener("keydown",e=>{if(e.key==="Enter")doSearch()});
+renderRoute();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body>
+</html>
