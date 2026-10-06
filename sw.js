@@ -1,5 +1,5 @@
 
-const CACHE = "msfs-charts-v1";
+const CACHE = "msfs-charts-v2";
 const ASSETS = [
   "./",
   "./index.html",
